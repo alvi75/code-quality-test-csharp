@@ -1,0 +1,46 @@
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.IO;
+
+#pragma warning disable all
+
+public class Translation116<T>
+{
+    // Common stub fields that might be referenced in methods
+    private int blockSize = 1024;
+    private int upto = 0;
+    private byte[] currentBlock = new byte[1024];
+    private List<byte[]> blocks = new List<byte[]>();
+    private List<int> blockEnd = new List<int>();
+    private int field_1_vcenter = 0;
+    private int BLOCK_SIZE = 1024;
+    private int DEFAULT_SIZE = 16;
+    
+    public override bool Equals(object obj){
+    if (this == obj){
+        return true;
+    }
+    if (!base.Equals(obj)){
+        return false;
+    }
+    if (this.GetType() != obj.GetType()){
+        return false;
+    }
+    AutomatonQuery other = (AutomatonQuery)obj;
+    if (m_compiled != other.m_compiled){
+        return false;
+    }
+    if (m_term == null){
+        if (other.m_term != null){
+            return false;
+        }
+    }
+    else if (!m_term.Equals(other.m_term)){
+        return false;
+    }
+    return true;
+}
+}

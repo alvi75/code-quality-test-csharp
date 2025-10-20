@@ -1,70 +1,47 @@
-name: Build and Analyze
+name: SonarQube
 on:
   push:
     branches:
       - main
   pull_request:
     types: [opened, synchronize, reopened]
-
 jobs:
   build:
     name: Build and analyze
     runs-on: windows-latest
-    
     steps:
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
           java-version: 17
-          distribution: 'zulu'
-          
+          distribution: 'zulu' # Alternative distribution options are available.
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0
-          
-      - name: Cache SonarCloud packages
+          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+      - name: Cache SonarQube Cloud packages
         uses: actions/cache@v4
         with:
           path: ~\sonar\cache
           key: ${{ runner.os }}-sonar
           restore-keys: ${{ runner.os }}-sonar
-          
-      - name: Cache SonarCloud scanner
+      - name: Cache SonarQube Cloud scanner
         id: cache-sonar-scanner
         uses: actions/cache@v4
         with:
-          path: .\.sonar\scanner
+          path: ${{ runner.temp }}\scanner
           key: ${{ runner.os }}-sonar-scanner
           restore-keys: ${{ runner.os }}-sonar-scanner
-          
-      - name: Install SonarCloud scanner
+      - name: Install SonarQube Cloud scanner
         if: steps.cache-sonar-scanner.outputs.cache-hit != 'true'
         shell: powershell
         run: |
-          New-Item -Path .\.sonar\scanner -ItemType Directory
-          dotnet tool update dotnet-sonarscanner --tool-path .\.sonar\scanner
-          
-      - name: Create dummy C# project
-        shell: powershell
-        run: |
-          $csproj = @"
-          <Project Sdk="Microsoft.NET.Sdk">
-            <PropertyGroup>
-              <TargetFramework>net6.0</TargetFramework>
-              <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-            </PropertyGroup>
-            <ItemGroup>
-              <Compile Include="cs_files\**\*.cs" />
-            </ItemGroup>
-          </Project>
-          "@
-          $csproj | Out-File -FilePath "CSharpAnalysis.csproj" -Encoding UTF8
-          
+          New-Item -Path ${{ runner.temp }}\scanner -ItemType Directory
+          dotnet tool update dotnet-sonarscanner --tool-path ${{ runner.temp }}\scanner
       - name: Build and analyze
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         shell: powershell
         run: |
-          .\.sonar\scanner\dotnet-sonarscanner begin /k:"alvi75_code-quality-test-csharp" /o:"alvi75" /d:sonar.token="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io"
-          dotnet build CSharpAnalysis.csproj
-          .\.sonar\scanner\dotnet-sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
+          ${{ runner.temp }}\scanner\dotnet-sonarscanner begin /k:"alvi75_code-quality-test-csharp" /o:"alvi75" /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
+          dotnet build
+          ${{ runner.temp }}\scanner\dotnet-sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"

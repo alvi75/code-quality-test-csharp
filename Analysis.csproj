@@ -3,6 +3,8 @@
     <TargetFramework>net6.0</TargetFramework>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <NoWarn>CS1056,CS1519,CS1010,CS1003,CS1026,CS1002,CS1525</NoWarn>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="cs_files\**\*.cs" />

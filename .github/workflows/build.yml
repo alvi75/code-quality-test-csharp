@@ -42,23 +42,6 @@ jobs:
           New-Item -Path ${{ runner.temp }}\scanner -ItemType Directory
           dotnet tool update dotnet-sonarscanner --tool-path ${{ runner.temp }}\scanner
           
-      - name: Create C# project file
-        shell: powershell
-        run: |
-          $csproj = @"
-          <Project Sdk="Microsoft.NET.Sdk">
-            <PropertyGroup>
-              <TargetFramework>net6.0</TargetFramework>
-              <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-              <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
-            </PropertyGroup>
-            <ItemGroup>
-              <Compile Include="cs_files\**\*.cs" />
-            </ItemGroup>
-          </Project>
-          "@
-          $csproj | Out-File -FilePath "Analysis.csproj" -Encoding UTF8
-          
       - name: Build and analyze
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
